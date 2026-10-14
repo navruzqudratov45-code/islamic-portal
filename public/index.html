@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Islomiy Portal - Namoz va Qur'on</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+      color: #f8fafc;
+      padding: 25px 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 25px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { font-size: 26px; color: #34d399; margin-bottom: 4px; }
+    header p { color: #cbd5e1; font-size: 13px; }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px;
+      border-radius: 14px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+    }
+
+    .tab-btn.active {
+      background: #10b981;
+      color: #064e3b;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    /* Shahar tanlash oynasi dizayni */
+    select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    select option {
+      background-color: #0f172a;
+      color: #ffffff;
+    }
+
+    .surah-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      max-height: 550px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .surah-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .surah-card:hover {
+      background: rgba(52, 211, 153, 0.12);
+      border-color: #34d399;
+      transform: translateY(-2px);
+    }
+
+    .surah-info h4 { color: #34d399; font-size: 16px; margin-bottom: 3px; }
+    .surah-info p { color: #94a3b8; font-size: 12px; }
+    .surah-arabic { font-size: 20px; color: #fcd34d; font-family: 'Traditional Arabic', serif; }
+
+    .ayah-container {
+      max-height: 550px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .ayah-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .ayah-num {
+      display: inline-block;
+      background: rgba(52, 211, 153, 0.2);
+      color: #34d399;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ayah-arabic {
+      font-size: 22px;
+      text-align: right;
+      color: #fcd34d;
+      margin-bottom: 10px;
+      line-height: 1.8;
+      font-family: 'Traditional Arabic', serif;
+    }
+
+    .ayah-uzbek {
+      color: #e2e8f0;
+      font-size: 14px;
+      line-height: 1.5;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 8px;
+    }
+
+    .times-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+    .time-card { background: rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .time-name { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    .time-val { font-size: 20px; font-weight: 700; color: #fff; }
+    .card { background: rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .card h3 { color: #34d399; font-size: 17px; margin-bottom: 6px; }
+    .badge { font-size: 11px; background: rgba(52, 211, 153, 0.15); color: #6ee7b7; padding: 2px 8px; border-radius: 6px; margin-bottom: 10px; display: inline-block;}
+    .steps-list { padding-left: 16px; font-size: 13px; color: #e2e8f0; line-height: 1.5; }
+    .steps-list li { margin-bottom: 5px; }
+    .arabic-text { font-size: 18px; text-align: right; color: #fcd34d; margin: 8px 0; }
+    .translit { font-style: italic; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
+    .meaning { font-size: 12px; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; }
+    
+    .tasbeh-container { text-align: center; padding: 20px; }
+    .tasbeh-count { font-size: 56px; font-weight: 800; color: #34d399; margin: 15px 0; }
+    .tasbeh-btn { width: 120px; height: 120px; border-radius: 50%; background: #10b981; color: #fff; font-size: 18px; font-weight: 700; border: none; cursor: pointer; margin: 10px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>🌙 Islomiy Portal</h1>
+      <p>Namoz vaqtlari, Qur'on, Duolar va Tasbeh</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('times', this)">🕒 Vaqtlar</button>
+      <button class="tab-btn" onclick="openTab('quran', this)">📖 Qur'on</button>
+      <button class="tab-btn" onclick="openTab('guides', this)">🧎 Namozlar</button>
+      <button class="tab-btn" onclick="openTab('duas', this)">🤲 Duolar</button>
+      <button class="tab-btn" onclick="openTab('tasbeh', this)">📿 Tasbeh</button>
+    </div>
+
+    <!-- 1-Bo'lim: Vaqtlar -->
+    <div id="times" class="section active">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <select id="citySelect" onchange="loadPrayerTimes()">
+          <option value="Tashkent">Toshkent</option>
+          <option value="Samarkand">Samarqand</option>
+          <option value="Bukhara">Buxoro</option>
+          <option value="Andijan">Andijon</option>
+          <option value="Namangan">Namangan</option>
+          <option value="Fergana">Farg'ona</option>
+          <option value="Khiva">Xiva</option>
+          <option value="Karshi">Qarshi</option>
+          <option value="Termiz">Termiz</option>
+          <option value="Nukus">Nukus</option>
+        </select>
+        <div id="dateInfo" style="font-size: 12px; color: #6ee7b7;">Yuklanmoqda...</div>
+      </div>
+      <div id="timesGrid" class="times-grid"></div>
+    </div>
+
+    <!-- 2-Bo'lim: Qur'on -->
+    <div id="quran" class="section">
+      <div id="surahListView">
+        <input type="text" class="search-box" id="surahSearch" placeholder="Sura nomini qidiring (masalan: Fotiha, Baqara, Yosin)..." oninput="filterSurahs()">
+        <div id="surahGrid" class="surah-grid">Yuklanmoqda...</div>
+      </div>
+      <div id="surahDetailView" style="display: none;">
+        <button class="back-btn" onclick="backToSurahList()">← Suralar ro'yxatiga qaytish</button>
+        <h2 id="currentSurahTitle" style="color: #34d399; margin-bottom: 12px; font-size: 20px;"></h2>
+        <div id="ayahsContainer" class="ayah-container"></div>
+      </div>
+    </div>
+
+    <!-- 3-Bo'lim: Namozlar -->
+    <div id="guides" class="section">
+      <div id="guidesList">Yuklanmoqda...</div>
+    </div>
+
+    <!-- 4-Bo'lim: Duolar -->
+    <div id="duas" class="section">
+      <div id="duasList">Yuklanmoqda...</div>
+    </div>
+
+    <!-- 5-Bo'lim: Tasbeh -->
+    <div id="tasbeh" class="section">
+      <div class="tasbeh-container">
+        <h3 id="zkName" style="color: #34d399; font-size: 18px;">Subhanalloh</h3>
+        <div class="tasbeh-count" id="tasbehCount">0</div>
+        <button class="tasbeh-btn" onclick="count++ ; document.getElementById('tasbehCount').innerText=count">Bosing</button>
+        <button onclick="count=0; document.getElementById('tasbehCount').innerText=count" style="margin-top:10px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:12px;">Noldan boshlash</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allSurahs = [];
+
+    function openTab(tabId, btn) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    async function loadSurahs() {
+      try {
+        const res = await fetch('/api/quran/surahs');
+        const data = await res.json();
+        allSurahs = data;
+        renderSurahs(allSurahs);
+      } catch (err) {
+        document.getElementById('surahGrid').innerText = 'Suralarni yuklab bo\'lmadi.';
+      }
+    }
+
+    function renderSurahs(surahs) {
+      const grid = document.getElementById('surahGrid');
+      grid.innerHTML = surahs.map(s => `
+        <div class="surah-card" onclick="loadSurahDetail(${s.number})">
+          <div class="surah-info">
+            <h4>${s.number}. ${s.englishName} (${s.englishNameTranslation})</h4>
+            <p>${s.numberOfAyahs} oyat • ${s.revelationType === 'Meccan' ? 'Makka' : 'Madina'}</p>
+          </div>
+          <div class="surah-arabic">${s.name}</div>
+        </div>
+      `).join('');
+    }
+
+    function filterSurahs() {
+      const query = document.getElementById('surahSearch').value.toLowerCase();
+      const filtered = allSurahs.filter(s => 
+        s.englishName.toLowerCase().includes(query) || 
+        s.englishNameTranslation.toLowerCase().includes(query) ||
+        s.name.includes(query) ||
+        s.number.toString() === query
+      );
+      renderSurahs(filtered);
+    }
+
+    async function loadSurahDetail(number) {
+      document.getElementById('surahListView').style.display = 'none';
+      document.getElementById('surahDetailView').style.display = 'block';
+      document.getElementById('ayahsContainer').innerHTML = '<p style="text-align:center; color:#94a3b8;">Oyatlar yuklanmoqda...</p>';
+
+      try {
+        const res = await fetch(`/api/quran/surah/${number}`);
+        const data = await res.json();
+        
+        document.getElementById('currentSurahTitle').innerText = `${data.number}. ${data.englishName} - ${data.name}`;
+        document.getElementById('ayahsContainer').innerHTML = data.ayahs.map(a => `
+          <div class="ayah-card">
+            <span class="ayah-num">${a.numberInSurah}-oyat</span>
+            <div class="ayah-arabic">${a.arabic}</div>
+            <div class="ayah-uzbek">${a.uzbek}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('ayahsContainer').innerHTML = '<p>Xatolik yuz berdi.</p>';
+      }
+    }
+
+    function backToSurahList() {
+      document.getElementById('surahDetailView').style.display = 'none';
+      document.getElementById('surahListView').style.display = 'block';
+    }
+
+    async function loadPrayerTimes() {
+      const city = document.getElementById('citySelect').value;
+      const res = await fetch(`/api/prayer-times?city=${city}`);
+      const data = await res.json();
+      document.getElementById('dateInfo').innerText = data.date;
+      document.getElementById('timesGrid').innerHTML = Object.entries(data.timings).map(([n, t]) => `
+        <div class="time-card"><div class="time-name">${n}</div><div class="time-val">${t}</div></div>
+      `).join('');
+    }
+
+    async function loadGuides() {
+      const res = await fetch('/api/guides');
+      const guides = await res.json();
+      document.getElementById('guidesList').innerHTML = guides.map(g => `
+        <div class="card">
+          <h3>${g.name}</h3>
+          <span class="badge">${g.type} • ${g.rakaat}</span>
+          <ol class="steps-list">${g.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>
+      `).join('');
+    }
+
+    async function loadDuas() {
+      const res = await fetch('/api/duas');
+      const duas = await res.json();
+      document.getElementById('duasList').innerHTML = duas.map(d => `
+        <div class="card">
+          <h3>${d.title}</h3>
+          <div class="arabic-text">${d.arabic}</div>
+          <div class="translit"><b>O'qilishi:</b> ${d.transliteration}</div>
+          <div class="meaning"><b>Ma'nosi:</b> ${d.meaning}</div>
+        </div>
+      `).join('');
+    }
+
+    let count = 0;
+    loadPrayerTimes();
+    loadSurahs();
+    loadGuides();
+    loadDuas();
+  </script>
+</body>
+</html>
